@@ -1,6 +1,9 @@
 #!/bin/sh
 # Jasi Modern Gradle Wrapper Script
 
+# Resolve application home
+APP_HOME="$(cd "$(dirname "$0")" && pwd)"
+
 GRADLE_USER_HOME="${GRADLE_USER_HOME:-$HOME/.gradle}"
 APP_NAME="Gradle"
 APP_BASE_NAME="gradle"
