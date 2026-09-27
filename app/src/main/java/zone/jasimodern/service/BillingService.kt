@@ -1,30 +1,25 @@
 package zone.jasimodern.service
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
-import android.os.Bundle
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import com.android.vending.billing.IInAppBillingService
-import zone.jasimodern.data.PurchaseDatabase
-import zone.jasimodern.ui.MainActivity
+import zone.jasimodern.R
 
 class BillingService : Service() {
     
     companion object {
         private const val TAG = "BillingService"
+        private const val CHANNEL_ID = "billing_service_channel"
         
         // 响应码常量
         const val BILLING_RESPONSE_RESULT_OK = 0
         const val BILLING_RESPONSE_RESULT_USER_CANCELED = 1
         const val BILLING_RESPONSE_RESULT_SERVICE_UNAVAILABLE = 2
-        const val BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE = 3
-        const val BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE = 4
-        const val BILLING_RESPONSE_RESULT_DEVELOPER_ERROR = 5
-        const val BILLING_RESPONSE_RESULT_ERROR = 6
-        const val BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED = 7
-        const val BILLING_RESPONSE_RESULT_ITEM_NOT_OWNED = 8
     }
     
     private val binder = BillingBinder()
@@ -41,64 +36,10 @@ class BillingService : Service() {
             packageName: String,
             itemId: String,
             itemType: String,
-            extraParams: Bundle?
-        ): Bundle {
+            extraParams: android.os.Bundle?
+        ): android.os.Bundle {
             Log.d(TAG, "getBuyIntent called for $itemId")
             return createBuyIntent(itemId, extraParams)
-        }
-        
-        override fun getBuyIntentExtraParams(
-            apiVersion: Int,
-            packageName: String,
-            itemId: String,
-            itemType: String,
-            extraParams: Bundle?,
-            extraIntent: Bundle?
-        ): Bundle {
-            Log.d(TAG, "getBuyIntentExtraParams called")
-            return createBuyIntent(itemId, extraParams)
-        }
-        
-        override fun getBuyIntentToReplaceSkus(
-            apiVersion: Int,
-            oldSkus: List<String>?,
-            packageName: String,
-            newSku: String,
-            itemType: String,
-            extraParams: Bundle?
-        ): Bundle {
-            Log.d(TAG, "getBuyIntentToReplaceSkus called")
-            return createBuyIntent(newSku, extraParams)
-        }
-        
-        override fun getPurchases(
-            apiVersion: Int,
-            packageName: String,
-            itemType: String,
-            continuationToken: String?
-        ): Bundle {
-            Log.d(TAG, "getPurchases called")
-            return createPurchasesBundle(packageName)
-        }
-        
-        override fun getPurchaseHistory(
-            apiVersion: Int,
-            packageName: String,
-            itemType: String,
-            continuationToken: String?
-        ): Bundle {
-            Log.d(TAG, "getPurchaseHistory called")
-            return createPurchaseHistoryBundle(packageName)
-        }
-        
-        override fun getSkuDetails(
-            apiVersion: Int,
-            packageName: String,
-            itemType: String,
-            skuList: List<String>?
-        ): Bundle {
-            Log.d(TAG, "getSkuDetails called")
-            return createSkuDetailsBundle(skuList)
         }
         
         override fun consumePurchase(
@@ -106,16 +47,71 @@ class BillingService : Service() {
             packageName: String,
             purchaseToken: String
         ): Int {
-            Log.d(TAG, "consumePurchase called for $purchaseToken")
+            Log.d(TAG, "consumePurchase called")
             return BILLING_RESPONSE_RESULT_OK
+        }
+        
+        // 其他方法实现...
+        override fun getBuyIntentExtraParams(
+            apiVersion: Int,
+            packageName: String,
+            itemId: String,
+            itemType: String,
+            extraParams: android.os.Bundle?,
+            extraIntent: android.os.Bundle?
+        ): android.os.Bundle = createBuyIntent(itemId, extraParams)
+        
+        override fun getBuyIntentToReplaceSkus(
+            apiVersion: Int,
+            oldSkus: List<String>?,
+            packageName: String,
+            newSku: String,
+            itemType: String,
+            extraParams: android.os.Bundle?
+        ): android.os.Bundle = createBuyIntent(newSku, extraParams)
+        
+        override fun getPurchases(
+            apiVersion: Int,
+            packageName: String,
+            itemType: String,
+            continuationToken: String?
+        ): android.os.Bundle {
+            Log.d(TAG, "getPurchases called")
+            val response = android.os.Bundle()
+            response.putInt("RESPONSE_CODE", BILLING_RESPONSE_RESULT_OK)
+            return response
+        }
+        
+        override fun getPurchaseHistory(
+            apiVersion: Int,
+            packageName: String,
+            itemType: String,
+            continuationToken: String?
+        ): android.os.Bundle {
+            Log.d(TAG, "getPurchaseHistory called")
+            val response = android.os.Bundle()
+            response.putInt("RESPONSE_CODE", BILLING_RESPONSE_RESULT_OK)
+            return response
+        }
+        
+        override fun getSkuDetails(
+            apiVersion: Int,
+            packageName: String,
+            itemType: String,
+            skuList: List<String>?
+        ): android.os.Bundle {
+            Log.d(TAG, "getSkuDetails called")
+            val response = android.os.Bundle()
+            response.putInt("RESPONSE_CODE", BILLING_RESPONSE_RESULT_OK)
+            return response
         }
     }
     
-    private fun createBuyIntent(itemId: String, extraParams: Bundle?): Bundle {
-        val response = Bundle()
+    private fun createBuyIntent(itemId: String, extraParams: android.os.Bundle?): android.os.Bundle {
+        val response = android.os.Bundle()
         response.putInt("RESPONSE_CODE", BILLING_RESPONSE_RESULT_OK)
         
-        val intent = Intent(this, MainActivity::class.java).apply {
+        val intent = Intent(this, zone.jasimodern.ui.MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         
@@ -130,95 +126,42 @@ class BillingService : Service() {
         return response
     }
     
-    private fun createPurchasesBundle(packageName: String): Bundle {
-        val response = Bundle()
-        response.putInt("RESPONSE_CODE", BILLING_RESPONSE_RESULT_OK)
-        
-        val database = PurchaseDatabase(this)
-        val purchases = database.getPurchases(packageName)
-        
-        val ids = ArrayList<String>()
-        val tokens = ArrayList<String>()
-        val signatures = ArrayList<String>()
-        
-        for (purchase in purchases) {
-            ids.add(purchase.itemId)
-            tokens.add(purchase.purchaseToken)
-            signatures.add(purchase.signature)
-        }
-        
-        response.putStringArrayList("INAPP_PURCHASE_ITEM_LIST", ids)
-        response.putStringArrayList("INAPP_PURCHASE_DATA_LIST", tokens.map { it }.toArrayList())
-        response.putStringArrayList("INAPP_DATA_SIGNATURE_LIST", signatures)
-        
-        return response
-    }
-    
-    private fun createPurchaseHistoryBundle(packageName: String): Bundle {
-        val response = Bundle()
-        response.putInt("RESPONSE_CODE", BILLING_RESPONSE_RESULT_OK)
-        
-        val database = PurchaseDatabase(this)
-        val history = database.getPurchaseHistory(packageName)
-        
-        val ids = ArrayList<String>()
-        val data = ArrayList<String>()
-        val signatures = ArrayList<String>()
-        
-        for (purchase in history) {
-            ids.add(purchase.itemId)
-            data.add(purchase.purchaseToken)
-            signatures.add(purchase.signature)
-        }
-        
-        response.putStringArrayList("INAPP_PURCHASE_HISTORY_LIST", ids)
-        response.putStringArrayList("INAPP_PURCHASE_HISTORY_DATA_LIST", data)
-        response.putStringArrayList("INAPP_PURCHASE_HISTORY_SIGNATURE_LIST", signatures)
-        
-        return response
-    }
-    
-    private fun createSkuDetailsBundle(skuList: List<String>?): Bundle {
-        val response = Bundle()
-        response.putInt("RESPONSE_CODE", BILLING_RESPONSE_RESULT_OK)
-        
-        val details = ArrayList<String>()
-        val items = skuList ?: emptyList()
-        
-        for (sku in items) {
-            val bundle = Bundle()
-            bundle.putString("ITEM_ID", sku)
-            bundle.putString("TYPE", "inapp")
-            bundle.putString("PRICE", "免费")
-            bundle.putString("TITLE", "测试商品: $sku")
-            bundle.putString("DESCRIPTION", "这是一个测试商品描述")
-            details.add(bundleToString(bundle))
-        }
-        
-        response.putStringArrayList("DETAILS_LIST", details)
-        return response
-    }
-    
-    private fun bundleToString(bundle: Bundle): String {
-        return bundle.keySet().joinToString(", ") { key ->
-            "$key=${bundle.get(key)}"
-        }
-    }
-    
     override fun onCreate() {
         super.onCreate()
+        createNotificationChannel()
+        startForeground(1, buildNotification())
         Log.d(TAG, "BillingService created")
     }
     
-    override fun onBind(intent: Intent?): IBinder? {
-        Log.d(TAG, "BillingService bound")
-        return binder
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "计费服务",
+                NotificationManager.IMPORTANCE_LOW
+            )
+            val manager = getSystemService(NotificationManager::class.java)
+            manager?.createNotificationChannel(channel)
+        }
     }
     
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "BillingService started")
-        return START_STICKY
+    private fun buildNotification(): Notification {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            android.app.Notification.Builder(this, CHANNEL_ID)
+                .setContentTitle("Jasi Modern")
+                .setContentText("计费服务运行中")
+                .setSmallIcon(R.drawable.ic_notification)
+                .build()
+        } else {
+            android.app.Notification.Builder(this)
+                .setContentTitle("Jasi Modern")
+                .setContentText("计费服务运行中")
+                .setSmallIcon(R.drawable.ic_notification)
+                .build()
+        }
     }
+    
+    override fun onBind(intent: Intent?): IBinder? = binder
     
     override fun onDestroy() {
         super.onDestroy()
