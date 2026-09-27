@@ -5,44 +5,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import zone.jasimodern.databinding.FragmentSettingsBinding
-import zone.jasimodern.viewmodel.SettingsViewModel
+import zone.jasimodern.R
 
 class SettingsFragment : Fragment() {
-    
-    private var _binding: FragmentSettingsBinding? = null
-    private val binding get() = _binding!!
-    private lateinit var viewModel: SettingsViewModel
-    
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
-        return binding.root
+        return inflater.inflate(R.layout.fragment_settings, container, false)
     }
-    
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
-        binding.btnBackup.setOnClickListener {
-            viewModel.backupSettings()
+
+        view.findViewById<View>(R.id.btn_backup)?.setOnClickListener {
+            // TODO: implement backup
         }
-        
-        binding.btnRestore.setOnClickListener {
-            viewModel.restoreSettings()
+
+        view.findViewById<View>(R.id.btn_restore)?.setOnClickListener {
+            // TODO: implement restore
         }
-        
-        binding.btnSave.setOnClickListener {
-            viewModel.saveSettings()
+
+        view.findViewById<View>(R.id.btn_save)?.setOnClickListener {
+            // TODO: implement save
         }
-    }
-    
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }
