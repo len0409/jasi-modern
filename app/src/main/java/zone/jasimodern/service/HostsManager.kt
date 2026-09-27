@@ -29,6 +29,8 @@ class HostsManager(private val context: Context) {
             try {
                 val file = File(HOSTS_FILE)
                 if (!file.exists()) {
+                    file.parentFile?.mkdirs()
+                    file.createNewFile()
                     Result.failure(Exception("Hosts文件不存在: $HOSTS_FILE"))
                 } else {
                     hostsRules = file.readLines()
