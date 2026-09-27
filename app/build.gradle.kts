@@ -1,6 +1,6 @@
 plugins {
     id("com.android.application") version "8.2.0"
-    id("org.jetbrains.kotlin.android") version "1.9.20"
+    id("org.jetbrains.kotlin.android") version "1.9.22"
 }
 
 android {
@@ -45,7 +45,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     
     // Xposed/LSPosed API
-    provided("de.robv.android.xposed:api:82")
+    compileOnly("de.robv.android.xposed:api:82")
     
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
