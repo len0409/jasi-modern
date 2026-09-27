@@ -24,6 +24,12 @@ jobs:
         distribution: 'temurin'
         cache: gradle
         
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        sdk-version: 34
+        build-tools-version: 34.0.0
+        
     - name: Grant execute permission
       run: chmod +x gradlew
       
@@ -64,7 +70,7 @@ jobs:
           ### 技术栈
           - minSdk: 24
           - targetSdk: 34
-          - Kotlin: 1.9.20
+          - Kotlin: 1.9.22
           - Gradle: 8.2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
