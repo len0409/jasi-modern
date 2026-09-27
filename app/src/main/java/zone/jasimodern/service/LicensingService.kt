@@ -2,14 +2,8 @@ package zone.jasimodern.service
 
 import android.app.Service
 import android.content.Intent
-import android.os.Bundle
 import android.os.IBinder
-import android.util.Base64
 import android.util.Log
-import java.security.KeyFactory
-import java.security.PrivateKey
-import java.security.spec.PKCS8EncodedKeySpec
-import javax.crypto.Cipher
 
 class LicensingService : Service() {
     
@@ -39,9 +33,7 @@ class LicensingService : Service() {
             }
         }
         
-        override fun getLicenseVersion(): Int {
-            return 2
-        }
+        override fun getLicenseVersion(): Int = 2
     }
     
     private data class LicenseResult(
@@ -53,23 +45,13 @@ class LicensingService : Service() {
         val timestamp = System.currentTimeMillis()
         val expiryTime = timestamp + (5L * 365 * 24 * 60 * 60 * 1000) // 5年有效期
         
-        val licenseData = buildString {
-            append(LICENSED)
-            append(timestamp)
-            append(packageName)
-            append(expiryTime)
-        }
-        
-        // 在实际项目中，这里应该使用真实的密钥签名
-        // 当前使用模拟实现
-        val signature = mockSign(licenseData)
+        val licenseData = "$LICENSED$timestamp$packageName$expiryTime"
+        val signature = android.util.Base64.encodeToString(
+            licenseData.toByteArray(),
+            android.util.Base64.DEFAULT
+        )
         
         return LicenseResult(licenseData, signature)
-    }
-    
-    private fun mockSign(data: String): String {
-        // 模拟签名 - 实际项目应使用真实密钥
-        return Base64.encodeToString(data.toByteArray(), Base64.DEFAULT)
     }
     
     override fun onCreate() {
@@ -77,10 +59,7 @@ class LicensingService : Service() {
         Log.d(TAG, "LicensingService created")
     }
     
-    override fun onBind(intent: Intent?): IBinder? {
-        Log.d(TAG, "LicensingService bound")
-        return binder
-    }
+    override fun onBind(intent: Intent?): IBinder? = binder
     
     override fun onDestroy() {
         super.onDestroy()

@@ -1,12 +1,10 @@
 package zone.jasimodern.service
 
 import android.content.Context
-import android.content.pm.PackageManager
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.InputStream
 
 class PatchManager(private val context: Context) {
     
@@ -52,7 +50,7 @@ class PatchManager(private val context: Context) {
                 patches.addAll(patchFiles.map { file ->
                     Patch(
                         name = file.nameWithoutExtension,
-                        packageName = "", // 需要解析
+                        packageName = "",
                         version = 1,
                         filePath = file.absolutePath,
                         lastModified = file.lastModified()

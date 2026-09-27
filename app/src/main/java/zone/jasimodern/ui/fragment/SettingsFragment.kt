@@ -1,19 +1,13 @@
 package zone.jasimodern.ui.fragment
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Switch
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import zone.jasimodern.R
 import zone.jasimodern.databinding.FragmentSettingsBinding
 import zone.jasimodern.service.BillingServiceManager
 import zone.jasimodern.viewmodel.SettingsViewModel
@@ -40,7 +34,6 @@ class SettingsFragment : Fragment() {
         viewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
         
         setupSwitches()
-        setupRecyclerView()
         observeViewModel()
     }
     
@@ -50,10 +43,6 @@ class SettingsFragment : Fragment() {
             Toast.makeText(context, "自动启动: ${if (isChecked) "已开启" else "已关闭"}", 
                 Toast.LENGTH_SHORT).show()
         }
-    }
-    
-    private fun setupRecyclerView() {
-        binding.rvSettingsItems.layoutManager = LinearLayoutManager(context)
     }
     
     private fun observeViewModel() {

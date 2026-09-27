@@ -1,24 +1,37 @@
 package zone.jasimodern
 
 import android.app.Application
-import zone.jasimodern.service.BillingServiceManager
-import zone.jasimodern.service.LicensingServiceManager
+import android.content.Intent
+import android.util.Log
+import zone.jasimodern.service.BillingService
+import zone.jasimodern.service.LicensingService
 import zone.jasimodern.xposed.XposedModule
 
 class JasiModernApp : Application() {
+    
+    companion object {
+        private const val TAG = "JasiModernApp"
+    }
     
     override fun onCreate() {
         super.onCreate()
         instance = this
         
-        // 初始化服务管理器
-        BillingServiceManager.initialize(this)
-        LicensingServiceManager.initialize(this)
+        Log.d(TAG, "Jasi Modern App started")
         
-        // 检查是否需要加载Xposed模块
+        // 初始化服务
+        startCoreServices()
+        
+        // 检查Xposed
         if (isXposedInstalled()) {
             XposedModule.initialize(this)
+            Log.d(TAG, "Xposed module initialized")
         }
+    }
+    
+    private fun startCoreServices() {
+        startService(Intent(this, BillingService::class.java))
+        startService(Intent(this, LicensingService::class.java))
     }
     
     private fun isXposedInstalled(): Boolean {

@@ -1,14 +1,12 @@
 package zone.jasimodern.service
 
-import android.content.ComponentName
 import android.content.Context
+import android.content.ComponentName
 import android.content.ServiceConnection
 import android.os.IBinder
 import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import zone.jasimodern.BillingService
-import zone.jasimodern.LicensingService
 
 class BillingServiceManager(private val context: Context) {
     
@@ -16,21 +14,12 @@ class BillingServiceManager(private val context: Context) {
     
     companion object {
         private const val TAG = "BillingServiceManager"
-        
-        @Volatile
-        private var instance: BillingServiceManager? = null
-        
-        val instance: BillingServiceManager
-            get() = instance ?: synchronized(this) {
-                instance ?: BillingServiceManager(context).also { instance = it }
-            }
     }
     
     private val _status = MutableStateFlow(Status.UNKNOWN)
     val status: StateFlow<Status> = _status
     
     private var billingConnection: ServiceConnection? = null
-    private var billingService: IInAppBillingService? = null
     
     fun initialize() {
         bindToBillingService()
@@ -42,13 +31,11 @@ class BillingServiceManager(private val context: Context) {
         
         billingConnection = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                billingService = IInAppBillingService.Stub.asInterface(service)
                 _status.value = Status.ACTIVE
                 Log.d(TAG, "Billing service connected")
             }
             
             override fun onServiceDisconnected(name: ComponentName?) {
-                billingService = null
                 _status.value = Status.INACTIVE
                 Log.d(TAG, "Billing service disconnected")
             }
@@ -74,6 +61,5 @@ class BillingServiceManager(private val context: Context) {
             }
         }
         billingConnection = null
-        billingService = null
     }
 }

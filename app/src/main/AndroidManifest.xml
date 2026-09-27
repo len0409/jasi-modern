@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".JasiModernApp"
@@ -30,7 +31,8 @@
         
         <service
             android:name=".service.BillingService"
-            android:exported="true">
+            android:exported="true"
+            android:foregroundServiceType="shortService">
             <intent-filter>
                 <action android:name="com.android.vending.billing.IInAppBillingService.BIND" />
             </intent-filter>

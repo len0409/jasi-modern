@@ -64,7 +64,6 @@ class PurchaseDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NA
     }
     
     fun getPurchaseHistory(packageName: String): List<Purchase> {
-        // 历史购买记录（模拟）
         return getPurchases(packageName)
     }
     

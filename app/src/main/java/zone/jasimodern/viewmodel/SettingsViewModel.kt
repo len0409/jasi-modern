@@ -30,6 +30,5 @@ class SettingsViewModel : ViewModel() {
     
     fun toggleAutoStart(enabled: Boolean) {
         _autoStartEnabled.postValue(enabled)
-        // 实际应用中这里会保存设置
     }
 }
