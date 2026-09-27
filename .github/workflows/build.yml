@@ -26,10 +26,9 @@ jobs:
         
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
-      
-    - name: Accept Android SDK licenses
-      run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-      
+      env:
+        ANDROID_SDK_TOOLS: latest
+        
     - name: Grant execute permission
       run: chmod +x gradlew
       
@@ -42,35 +41,3 @@ jobs:
         name: jasi-modern-release
         path: app/build/outputs/apk/release/app-release.apk
         retention-days: 30
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    
-    steps:
-    - name: Download APK
-      uses: actions/download-artifact@v4
-      with:
-        name: jasi-modern-release
-        
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: app-release.apk
-        body: |
-          ## Jasi Modern ${{ github.ref_name }}
-          
-          ### 更新内容
-          - 现代化重构
-          - Kotlin 支持
-          - AndroidX 迁移
-          - Material Design 3
-          
-          ### 技术栈
-          - minSdk: 24
-          - targetSdk: 34
-          - Kotlin: 1.9.22
-          - Gradle: 8.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
