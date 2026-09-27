@@ -2,78 +2,94 @@ package zone.jasimodern.service
 
 import android.content.Context
 import android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileWriter
 
 class HostsManager(private val context: Context) {
     
     companion object {
         private const val TAG = "HostsManager"
-        private const val HOSTS_FILE = "/sdcard/JasiModern/hosts"
-        
-        @Volatile
-        private var instance: HostsManager? = null
-        
-        fun getInstance(context: Context): HostsManager {
-            return instance ?: synchronized(this) {
-                instance ?: HostsManager(context).also { instance = it }
-            }
+        private const val HOSTS_FILE = "hosts"
+        private const val BACKUP_DIR = "/sdcard/JasiModern/hosts_backup/"
+    }
+    
+    private var hostsContent = ""
+    private val hostsRules = mutableListOf<HostsRule>()
+    
+    data class HostsRule(
+        val ip: String,
+        val domain: String,
+        val category: String
+    )
+    
+    fun loadFromAssets() {
+        try {
+            val inputStream = context.assets.open(HOSTS_FILE)
+            hostsContent = inputStream.bufferedReader().use { it.readText() }
+            
+            parseHostsContent()
+            Log.d(TAG, "Loaded hosts file with ${hostsRules.size} rules")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to load hosts file", e)
         }
     }
     
-    private var hostsRules: MutableList<String> = mutableListOf()
-    
-    suspend fun loadHostsFile(): Result<Int> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val file = File(HOSTS_FILE)
-                if (!file.exists()) {
-                    file.parentFile?.mkdirs()
-                    file.createNewFile()
-                    Result.failure(Exception("Hosts文件不存在: $HOSTS_FILE"))
-                } else {
-                    hostsRules = file.readLines()
-                        .filter { it.isNotEmpty() && !it.startsWith("#") }
-                        .toMutableList()
-                    Result.success(hostsRules.size)
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "加载hosts失败", e)
-                Result.failure(e)
-            }
-        }
-    }
-    
-    fun getRules(): List<String> = hostsRules.toList()
-    
-    fun addRule(rule: String): Boolean {
-        if (rule.isNotEmpty() && !rule.startsWith("#") && !hostsRules.contains(rule)) {
-            hostsRules.add(rule)
-            return true
-        }
-        return false
-    }
-    
-    fun removeRule(rule: String): Boolean {
-        return hostsRules.remove(rule)
-    }
-    
-    fun clearRules() {
+    fun parseHostsContent() {
         hostsRules.clear()
-    }
-    
-    suspend fun saveToFile(): Result<Boolean> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val file = File(HOSTS_FILE)
-                file.parentFile?.mkdirs()
-                file.writeText(hostsRules.joinToString("\n") { "$it\n" })
-                Result.success(true)
-            } catch (e: Exception) {
-                Log.e(TAG, "保存hosts失败", e)
-                Result.failure(e)
+        
+        val lines = hostsContent.split("\n")
+        for (line in lines) {
+            val trimmed = line.trim()
+            if (trimmed.isEmpty() || trimmed.startsWith("#")) continue
+            
+            val parts = trimmed.split("\\s+".toRegex())
+            if (parts.size >= 2) {
+                val ip = parts[0]
+                val domain = parts[1]
+                
+                val category = when {
+                    domain.contains("google") || domain.contains("ads") -> "广告"
+                    domain.contains("facebook") -> "社交媒体"
+                    domain.contains("twitter") -> "社交媒体"
+                    domain.contains("tracking") || domain.contains("analytics") -> "追踪器"
+                    else -> "其他"
+                }
+                
+                hostsRules.add(HostsRule(ip, domain, category))
             }
         }
+    }
+    
+    fun backupHosts() {
+        try {
+            val backupDir = File(BACKUP_DIR)
+            if (!backupDir.exists()) {
+                backupDir.mkdirs()
+            }
+            
+            val timestamp = System.currentTimeMillis()
+            val backupFile = File(backupDir, "hosts_backup_$timestamp.txt")
+            
+            val writer = FileWriter(backupFile)
+            writer.write(hostsContent)
+            writer.close()
+            
+            Log.d(TAG, "Hosts file backed up to ${backupFile.absolutePath}")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to backup hosts", e)
+        }
+    }
+    
+    fun getRulesByCategory(category: String): List<HostsRule> {
+        return hostsRules.filter { it.category == category }
+    }
+    
+    fun getTotalRules(): Int = hostsRules.size
+    
+    fun getRuleCountByCategory(): Map<String, Int> {
+        return hostsRules.groupBy { it.category }
+            .mapValues { it.value.size }
     }
 }

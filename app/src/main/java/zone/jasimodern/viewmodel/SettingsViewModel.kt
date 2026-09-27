@@ -1,47 +1,35 @@
 package zone.jasimodern.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import zone.jasimodern.service.BillingServiceManager
 
-class SettingsViewModel(application: Application) : AndroidViewModel(application) {
+class SettingsViewModel : ViewModel() {
     
-    data class Settings(
-        val autoStart: Boolean = true,
-        val xposedEnabled: Boolean = true,
-        val hostsEnabled: Boolean = true,
-        val patchAutoLoad: Boolean = true
-    )
+    private val _billingStatus = MutableLiveData<BillingServiceManager.Status>()
+    val billingStatus: LiveData<BillingServiceManager.Status> = _billingStatus
     
-    private val _settings = MutableStateFlow(Settings())
-    val settings: StateFlow<Settings> = _settings
+    private val _isXposedEnabled = MutableLiveData<Boolean>()
+    val isXposedEnabled: LiveData<Boolean> = _isXposedEnabled
+    
+    private val _autoStartEnabled = MutableLiveData<Boolean>()
+    val autoStartEnabled: LiveData<Boolean> = _autoStartEnabled
+    
+    fun updateBillingStatus(status: BillingServiceManager.Status) {
+        _billingStatus.value = status
+    }
+    
+    fun updateXposedStatus(enabled: Boolean) {
+        _isXposedEnabled.value = enabled
+    }
+    
+    fun updateAutoStart(enabled: Boolean) {
+        _autoStartEnabled.value = enabled
+    }
     
     fun toggleAutoStart(enabled: Boolean) {
-        _settings.value = _settings.value.copy(autoStart = enabled)
-    }
-    
-    fun toggleXposed(enabled: Boolean) {
-        _settings.value = _settings.value.copy(xposedEnabled = enabled)
-    }
-    
-    fun toggleHosts(enabled: Boolean) {
-        _settings.value = _settings.value.copy(hostsEnabled = enabled)
-    }
-    
-    fun togglePatchAutoLoad(enabled: Boolean) {
-        _settings.value = _settings.value.copy(patchAutoLoad = enabled)
-    }
-    
-    fun backupSettings() {
-        // TODO: 实现设置备份逻辑
-    }
-    
-    fun restoreSettings() {
-        // TODO: 实现设置恢复逻辑
-    }
-    
-    fun saveSettings() {
-        // TODO: 实现设置持久化
+        _autoStartEnabled.postValue(enabled)
+        // 实际应用中这里会保存设置
     }
 }

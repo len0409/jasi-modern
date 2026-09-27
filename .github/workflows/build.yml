@@ -1,0 +1,70 @@
+# Jasi Modern - Build and Release
+
+name: Build and Release
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+        
+    - name: Grant execute permission
+      run: chmod +x gradlew
+      
+    - name: Build with Gradle
+      run: ./gradlew assembleRelease
+      
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: jasi-modern-release
+        path: app/build/outputs/apk/release/app-release.apk
+        retention-days: 30
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Download APK
+      uses: actions/download-artifact@v4
+      with:
+        name: jasi-modern-release
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: app-release.apk
+        body: |
+          ## Jasi Modern ${{ github.ref_name }}
+          
+          ### 更新内容
+          - 现代化重构
+          - Kotlin 支持
+          - AndroidX 迁移
+          - Material Design 3
+          
+          ### 技术栈
+          - minSdk: 24
+          - targetSdk: 34
+          - Kotlin: 1.9.20
+          - Gradle: 8.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
