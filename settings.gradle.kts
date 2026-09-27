@@ -14,4 +14,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "JasiModern"
-include ':app'
+include(":app")
