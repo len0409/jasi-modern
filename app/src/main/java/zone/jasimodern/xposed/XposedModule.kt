@@ -2,6 +2,7 @@ package zone.jasimodern.xposed
 
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XC_LoadPackage
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import android.content.pm.PackageManager
@@ -14,9 +15,9 @@ class XposedModule : IXposedHookLoadPackage {
         private const val TAG = "XposedModule"
     }
 
-    override fun handleLoadPackage(lpparam: IXposedHookLoadPackage.LoadPackageParam) {
-        hookPackageManager(lpparam.classLoader)
-        hookDeviceInfo(lpparam.classLoader)
+    override fun handleLoadPackage(param: XC_LoadPackage.LoadPackageParam) {
+        hookPackageManager(param.classLoader)
+        hookDeviceInfo(param.classLoader)
     }
 
     private fun hookPackageManager(classLoader: ClassLoader) {
