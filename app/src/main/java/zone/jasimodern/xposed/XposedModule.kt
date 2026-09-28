@@ -14,7 +14,7 @@ class XposedModule : IXposedHookLoadPackage {
         private const val TAG = "XposedModule"
     }
 
-    override fun handleLoadPackage(lpparam: IXposedHookLoadPackage.LoadPackageParam) {
+    override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         hookPackageManager(lpparam.classLoader)
         hookDeviceInfo(lpparam.classLoader)
     }
@@ -28,7 +28,6 @@ class XposedModule : IXposedHookLoadPackage {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         val pkgName = param.args[0] as? String ?: return
                         if (isSuspiciousPackage(pkgName)) {
-                            val original = param.proceed()
                             // Could modify result here if needed
                         }
                     }
