@@ -2,7 +2,6 @@ package zone.jasimodern.xposed
 
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
 class XposedModule : IXposedHookLoadPackage {
@@ -16,8 +15,7 @@ class XposedModule : IXposedHookLoadPackage {
         try {
             XposedHelpers.findAndHookMethod(
                 "android.content.pm.PackageManager", classLoader,
-                "getPackageInfo", String::class.java,
-                Int::class.javaPrimitiveType,
+                "getPackageInfo", String::class.java, Int::class.javaPrimitiveType,
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         // Hook logic here

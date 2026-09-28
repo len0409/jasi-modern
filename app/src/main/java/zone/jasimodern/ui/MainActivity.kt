@@ -11,6 +11,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import zone.jasimodern.R
 import zone.jasimodern.databinding.ActivityMainBinding
 import zone.jasimodern.service.BillingService
@@ -26,6 +29,8 @@ class MainActivity : AppCompatActivity() {
     
     private var billingConnection: ServiceConnection? = null
     private var licensingConnection: ServiceConnection? = null
+    
+    private val scope = CoroutineScope(Dispatchers.Main)
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,11 +98,12 @@ class MainActivity : AppCompatActivity() {
     private fun refreshServices() {
         binding.pbStatus.visibility = View.VISIBLE
         patchManager.reloadPatches()
+        binding.pbStatus.visibility = View.GONE
     }
     
     private fun loadPatchFromStorage() {
         binding.pbStatus.visibility = View.VISIBLE
-        viewModelScope.launch {
+        scope.launch {
             patchManager.loadFromSdCard { success, message ->
                 runOnUiThread {
                     binding.pbStatus.visibility = View.GONE

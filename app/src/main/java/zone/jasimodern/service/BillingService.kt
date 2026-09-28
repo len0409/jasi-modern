@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.os.Build
-import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 
@@ -19,6 +18,10 @@ class BillingService : Service() {
         const val BILLING_RESPONSE_RESULT_USER_CANCELED = 1
     }
 
+    inner class BillingBinder : Binder() {
+        fun getService(): BillingService = this@BillingService
+    }
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
@@ -26,47 +29,7 @@ class BillingService : Service() {
         Log.d(TAG, "BillingService created")
     }
 
-    override fun onBind(intent: Intent?): IBinder? = billingBinder
-
-    private val billingBinder = object : Binder() {
-        override fun isBillingSupported(apiVersion: Int, packageName: String, billingType: String?): Int {
-            return BILLING_RESPONSE_RESULT_OK
-        }
-
-        override fun getBuyIntent(apiVersion: Int, packageName: String, itemId: String, itemType: String, extraParams: Bundle?): Bundle {
-            return createBuyIntent(itemId)
-        }
-
-        override fun getBuyIntentExtraParams(apiVersion: Int, packageName: String, itemId: String, itemType: String, extraParams: Bundle?, extraIntent: Bundle?): Bundle {
-            return createBuyIntent(itemId)
-        }
-
-        override fun getBuyIntentToReplaceSkus(apiVersion: Int, oldSkus: List<String>?, packageName: String, newSku: String, itemType: String, extraParams: Bundle?): Bundle {
-            return createBuyIntent(newSku)
-        }
-
-        override fun getPurchases(apiVersion: Int, packageName: String, itemType: String, continuationToken: String?): Bundle {
-            return Bundle().apply { putInt("RESPONSE_CODE", BILLING_RESPONSE_RESULT_OK) }
-        }
-
-        override fun getPurchaseHistory(apiVersion: Int, packageName: String, itemType: String, continuationToken: String?): Bundle {
-            return Bundle().apply { putInt("RESPONSE_CODE", BILLING_RESPONSE_RESULT_OK) }
-        }
-
-        override fun getSkuDetails(apiVersion: Int, packageName: String, itemType: String, skuList: List<String>?): Bundle {
-            return Bundle().apply { putInt("RESPONSE_CODE", BILLING_RESPONSE_RESULT_OK) }
-        }
-
-        override fun consumePurchase(apiVersion: Int, packageName: String, purchaseToken: String): Int {
-            return BILLING_RESPONSE_RESULT_OK
-        }
-    }
-
-    private fun createBuyIntent(itemId: String): Bundle {
-        val response = Bundle()
-        response.putInt("RESPONSE_CODE", BILLING_RESPONSE_RESULT_OK)
-        return response
-    }
+    override fun onBind(intent: Intent?): IBinder? = BillingBinder()
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
