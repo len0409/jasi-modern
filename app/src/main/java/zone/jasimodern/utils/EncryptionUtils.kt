@@ -17,7 +17,7 @@ object EncryptionUtils {
     fun deobfuscateString(text: String, key: String? = null): String {
         val actualKey = key ?: generateKeyFromStack()
         return text.map { c ->
-            ((c.code - actualKey.hashCode()) % 127 + 127) % 127.toChar()
+            ((c.code - actualKey.hashCode()) % 127 + 127) % 127).toChar()
         }.toString()
     }
 

@@ -2,15 +2,16 @@ package zone.jasimodern.xposed
 
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
 class XposedModule : IXposedHookLoadPackage {
-    
+
     override fun handleLoadPackage(lpparam: IXposedHookLoadPackage.LoadPackageParam) {
         hookPackageManager(lpparam.classLoader)
         hookDeviceInfo(lpparam.classLoader)
     }
-    
+
     private fun hookPackageManager(classLoader: ClassLoader) {
         try {
             XposedHelpers.findAndHookMethod(
@@ -26,7 +27,7 @@ class XposedModule : IXposedHookLoadPackage {
             android.util.Log.e("XposedModule", "Failed to hook PackageManager", e)
         }
     }
-    
+
     private fun hookDeviceInfo(classLoader: ClassLoader) {
         try {
             XposedHelpers.findAndHookMethod(
