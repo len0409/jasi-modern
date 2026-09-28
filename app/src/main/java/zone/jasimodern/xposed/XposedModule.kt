@@ -2,7 +2,6 @@ package zone.jasimodern.xposed
 
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_LoadPackage
 import de.robv.android.xposed.XposedHelpers
 import android.content.pm.PackageManager
 import android.telephony.TelephonyManager
@@ -14,7 +13,7 @@ class XposedModule : IXposedHookLoadPackage {
         private const val TAG = "XposedModule"
     }
 
-    override fun handleLoadPackage(param: XC_LoadPackage.LoadPackageParam) {
+    override fun handleLoadPackage(param: IXposedHookLoadPackage.LoadPackageParam) {
         hookPackageManager(param.classLoader)
         hookDeviceInfo(param.classLoader)
     }
