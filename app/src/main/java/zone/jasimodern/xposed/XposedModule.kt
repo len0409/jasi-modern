@@ -1,13 +1,12 @@
 package zone.jasimodern.xposed
 
-import de.robv.android.xposed.IXposedHookLoadPackage
+import de.robv.android.xposed.XC_LoadPackage
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
-class XposedModule : IXposedHookLoadPackage {
+class XposedModule : XC_LoadPackage.LoadPackageParam {
 
-    override fun handleLoadPackage(lpparam: IXposedHookLoadPackage.LoadPackageParam) {
+    override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         hookPackageManager(lpparam.classLoader)
         hookDeviceInfo(lpparam.classLoader)
     }
