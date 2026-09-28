@@ -2,7 +2,6 @@ package zone.jasimodern.xposed
 
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_LoadPackage
 import de.robv.android.xposed.XposedHelpers
 import android.content.pm.PackageManager
 import android.telephony.TelephonyManager
@@ -14,12 +13,13 @@ class XposedModule : IXposedHookLoadPackage {
         private const val TAG = "XposedModule"
     }
 
-    override fun handleLoadPackage(param: XC_LoadPackage.LoadPackageParam) {
-        hookPackageManager(param.classLoader)
-        hookDeviceInfo(param.classLoader)
+    override fun handleLoadPackage(param: Any) {
+        val classLoader = (param as? Any)?.javaClass?.classLoader
+        hookPackageManager(classLoader)
     }
 
-    private fun hookPackageManager(classLoader: ClassLoader) {
+    private fun hookPackageManager(classLoader: ClassLoader?) {
+        if (classLoader == null) return
         try {
             XposedHelpers.findAndHookMethod(
                 PackageManager::class.java.name, classLoader,
@@ -35,22 +35,6 @@ class XposedModule : IXposedHookLoadPackage {
             )
         } catch (e: Exception) {
             Log.e(TAG, "Failed to hook PackageManager", e)
-        }
-    }
-
-    private fun hookDeviceInfo(classLoader: ClassLoader) {
-        try {
-            XposedHelpers.findAndHookMethod(
-                TelephonyManager::class.java.name, classLoader,
-                "getDeviceId",
-                object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        param.result = "000000000000000"
-                    }
-                }
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to hook device info", e)
         }
     }
 
