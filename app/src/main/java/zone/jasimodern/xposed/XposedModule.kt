@@ -14,7 +14,7 @@ class XposedModule : IXposedHookLoadPackage {
         private const val TAG = "XposedModule"
     }
 
-    override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
+    override fun handleLoadPackage(lpparam: IXposedHookLoadPackage.LoadPackageParam) {
         hookPackageManager(lpparam.classLoader)
         hookDeviceInfo(lpparam.classLoader)
     }
